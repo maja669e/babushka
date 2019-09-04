@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babushka</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 5% 5% 0 0;
+        }
+
+        .liste {
+            text-align: center;
+            display: grid;
+            grid-gap: 10px;
+            grid-template-columns: repeat(1, 1fr);
+            max-width: 1080px;
+            margin: 0 auto;
+            color: white;
+
+        }
+
+        article:nth-child(even) {
+            background-color: #ffb144;
+            border-radius: 5%;
+        }
+
+        article:nth-child(odd) {
+            background-color: #b0cdeb;
+            border-radius: 5%;
+        }
+
+        @media screen and (min-width:600px) {
+            .liste {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media screen and (min-width:960px) {
+            .liste {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        h1 {
+            max-width: 1080px;
+            margin: 0 auto;
+            color: black;
+            padding: 30px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+
+        footer {
+            background-color: #c8d0d3;
+            width: 100%;
+            color: white;
+            margin-top: 2vw;
+            font-style: italic
+        }
+
+        #footer_info {
+            flex-wrap: wrap;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .adresse,
+        .tider {
+            margin: 2vw;
+        }
+
+        header {
+            width: 100%;
+            background-image: linear-gradient(to right, #ff9500, #f8d4a2);
+            display: flex;
+            flex-wrap: wrap;
+            text-align: left;
+        }
+
+        .overskrift {
+            font-size: 80px;
+            color: white;
+            margin-left: 20px;
+        }
+
+
+        nav {
+            text-align: center;
+            width: 100%;
+            background-image: linear-gradient(to right, #ff9500, #f8d4a2);
+        }
+
+        .filter {
+            background-color: inherit;
+            color: white;
+            font-size: 20px;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-right: 1px solid white;
+            font-family: "Times New Roman", Times, serif;
+            text-transform: uppercase;
+
+        }
+
+        .filter:last-of-type {
+            border-right: none;
+        }
+
+        .filter:hover {
+            opacity: 0.2;
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="overskrift">
+            <p>Babushka</p>
+        </div>
+
+    </header>
+
+    <nav>
+        <button class="filter" data-kategori="alle">Alle</button>
+        <button class="filter" data-kategori="forretter">Forretter</button>
+        <button class="filter" data-kategori="hovedretter">Hovedretter</button>
+        <button class="filter" data-kategori="desserter">Desserter</button>
+        <button class="filter" data-kategori="drikkevarer">Drikkevarer</button>
+    </nav>
+
+    <h1>Menu</h1>
+    <template>
+
+        <article>
+
+            <img src="" alt="">
+            <h2></h2>
+            <p class="menu"></p>
+            <p class="pris"></p>
+
+
+        </article>
+    </template>
+    <section class="liste"></section>
+    <footer>
+        <div id="footer_info">
+            <div class="adresse">
+                <p>Adresse:</p>
+                <p>Grønnegade 97</p>
+                <p>1234 København K</p>
+            </div>
+            <div class="tider">
+                <p>Åbningstider:</p>
+                <p>Mandag-fredag 10:30-22:00</p>
+                <p>Lørdag 12:00-23:00</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let retter;
+        const listeRetter = document.querySelector(".liste");
+        const theTemplatePointer = document.querySelector("#theTemplate");
+        let filter = "alle";
+        document.addEventListener("DOMContentLoaded", getJson);
+
+        async function getJson() {
+            let jsonData = await fetch("https://spreadsheets.google.com/feeds/list/17Dd7DvkPaFamNUdUKlrFgnH6POvBJXac7qyiS6zNRw0/od6/public/values?alt=json");
+            console.log("jsonData", jsonData);
+            retter = await jsonData.json();
+            console.log("retter", retter);
+            addEventListenersToButtons();
+            start();
+        }
+
+
+        function start() {
+            const listeRetter = document.querySelector(".liste");
+            const temp = document.querySelector("template");
+            listeRetter.innerHTML = "";
+
+            retter.feed.entry.forEach((retter) => {
+                if (filter == "alle" || filter == retter.gsx$kategori.$t) {
+                    const klon = temp.cloneNode(true).content;
+                    klon.querySelector("h2").textContent = retter.gsx$navn.$t;
+                    klon.querySelector(".pris").textContent = `${retter.gsx$pris.$t},-`;
+                    klon.querySelector(".menu").textContent = retter.gsx$kort.$t;
+                    klon.querySelector("img").src = `large/${retter.gsx$billede.$t}.jpg`;
+                    listeRetter.appendChild(klon);
+                }
+            })
+        }
+
+        function addEventListenersToButtons() {
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.addEventListener("click", filtrering);
+            })
+        }
+
+        function filtrering() {
+            filter = this.dataset.kategori;
+            document.querySelector("h1").textContent = this.textContent;
+            document.querySelectorAll(".filter").forEach(elm => {
+                elm.classList.remove("valgt");
+            })
+
+            start();
+        }
+    </script>
+
+
+</body>
+
+</html>
