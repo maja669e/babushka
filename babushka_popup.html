@@ -4,11 +4,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Cinzel+Decorative&display=swap" rel="stylesheet">
     <title>Babushka</title>
+
     <style>
+        header p {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 80px;
+            color: white;
+            margin-left: 20px;
+            text-transform: uppercase;
+        }
+
         body {
             margin: 0;
+            background-image: url(background.jpg);
+            background-attachment: fixed;
+            background-position: center;
+            background-color: #cccccc;
+            width: 100%;
         }
+
 
         img {
             width: 100%;
@@ -23,16 +39,16 @@
             max-width: 1080px;
             margin: 0 auto;
             color: white;
-
+            cursor: pointer;
         }
 
         article:nth-child(even) {
-            background-color: #ffb144;
+            background-color: #cc8484;
             border-radius: 5%;
         }
 
         article:nth-child(odd) {
-            background-color: #b0cdeb;
+            background-color: #9dc1e6;
             border-radius: 5%;
         }
 
@@ -47,6 +63,7 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+
 
         h1 {
             max-width: 1080px;
@@ -63,7 +80,7 @@
             width: 100%;
             color: white;
             margin-top: 2vw;
-            font-style: italic
+            font-style: italic;
         }
 
         #footer_info {
@@ -80,23 +97,17 @@
 
         header {
             width: 100%;
-            background-image: linear-gradient(to right, #ff9500, #f8d4a2);
+            background-image: linear-gradient(to right, #c44e4e, #e0b3b3);
             display: flex;
             flex-wrap: wrap;
             text-align: left;
-        }
-
-        .overskrift {
-            font-size: 80px;
-            color: white;
-            margin-left: 20px;
         }
 
 
         nav {
             text-align: center;
             width: 100%;
-            background-image: linear-gradient(to right, #ff9500, #f8d4a2);
+            background-image: linear-gradient(to right, #c44e4e, #e0b3b3);
         }
 
         .filter {
@@ -119,6 +130,55 @@
         .filter:hover {
             opacity: 0.2;
         }
+
+
+        #popup {
+            position: fixed;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, .7);
+            display: none;
+            overflow: scroll;
+        }
+
+        .indhold {
+            width: 38vw;
+            min-height: 40vh;
+            margin: 4rem auto;
+            padding: 10px;
+            color: white;
+            text-align: center;
+        }
+
+        .indhold p {
+            margin: 15px;
+        }
+
+        .luk {
+            position: fixed;
+            right: 0;
+            font-size: 2rem;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .luk:hover {
+            background-color: rgba(0, 0, 0, .4);
+        }
+
+        @media screen and (max-width: 700px) {
+            .indhold {
+                width: 65%;
+            }
+
+            .liste {
+                margin: 3vw;
+            }
+        }
     </style>
 
 
@@ -127,11 +187,7 @@
 <body>
 
     <header>
-
-        <div class="overskrift">
-            <p>Babushka</p>
-        </div>
-
+        <p>Babushka</p>
     </header>
 
     <nav>
@@ -155,7 +211,21 @@
 
         </article>
     </template>
+
+    <div id="popup">
+        <button class="luk">X</button>
+        <section class="indhold">
+            <article class="menu">
+                <img class="billede" src="" alt="">
+                <h2></h2>
+                <p class="menukort"></p>
+                <p class="pris"></p>
+            </article>
+        </section>
+    </div>
+
     <section class="liste"></section>
+
     <footer>
         <div id="footer_info">
             <div class="adresse">
@@ -173,9 +243,12 @@
 
     <script>
         let retter;
+        const temp = document.querySelector("template");
         const listeRetter = document.querySelector(".liste");
         const theTemplatePointer = document.querySelector("#theTemplate");
         let filter = "alle";
+
+
         document.addEventListener("DOMContentLoaded", getJson);
 
         async function getJson() {
@@ -189,8 +262,6 @@
 
 
         function start() {
-            const listeRetter = document.querySelector(".liste");
-            const temp = document.querySelector("template");
             listeRetter.innerHTML = "";
 
             retter.feed.entry.forEach((retter) => {
@@ -201,8 +272,25 @@
                     klon.querySelector(".menu").textContent = retter.gsx$kort.$t;
                     klon.querySelector("img").src = `large/${retter.gsx$billede.$t}.jpg`;
                     listeRetter.appendChild(klon);
+                    listeRetter.lastElementChild.addEventListener("click", () => {
+                        visSingle(retter);
+                    });
                 }
             })
+        }
+
+        function visSingle(retter) {
+            document.querySelector("#popup").style.display = "block";
+            document.querySelector("#popup .luk").addEventListener("click", lukSingle);
+
+            document.querySelector(".menu h2").textContent = retter.gsx$navn.$t;
+            document.querySelector(".menu .pris").textContent = `${retter.gsx$pris.$t},-`;
+            document.querySelector(".menu .menukort").textContent = retter.gsx$lang.$t;
+            document.querySelector(".menu img").src = `large/${retter.gsx$billede.$t}.jpg`;
+        }
+
+        function lukSingle() {
+            document.querySelector("#popup").style.display = "none";
         }
 
         function addEventListenersToButtons() {

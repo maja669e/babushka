@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babushka</title>
+
+    <style>
+        body {
+            margin: 0;
+            background-image: url(background.jpg);
+            background-attachment: fixed;
+            background-position: center;
+            background-color: #cccccc;
+            width: 100%;
+        }
+
+
+        img {
+            width: 100%;
+            border-radius: 5% 5% 0 0;
+        }
+
+        footer {
+            background-color: #c8d0d3;
+            width: 100%;
+            color: white;
+            margin-top: 2vw;
+            font-style: italic;
+            position: relative;
+            bottom: 0;
+        }
+
+        #footer_info {
+            flex-wrap: wrap;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .adresse,
+        .tider {
+            margin: 2vw;
+        }
+
+        #single {
+            display: flex;
+            justify-content: center;
+            margin: 3vw;
+        }
+
+        .indhold {
+            width: 38vw;
+            min-height: 40vh;
+            /*margin: 4rem auto;*/
+            padding: 10px;
+            color: white;
+            text-align: center;
+            background-color: #9dc1e6;
+            border-radius: 5%;
+        }
+
+        .luk {
+            font-size: 2.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .luk:hover {
+            background-color: rgba(0, 0, 0, .5);
+            color: white;
+            border-radius: 50%;
+        }
+
+        @media screen and (max-width: 700px) {
+            .indhold {
+                width: 65%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main id="single">
+        <button class="luk">&#8592;</button>
+        <section class="indhold">
+            <article class="menu">
+                <img class="billede" src="" alt="">
+                <h2></h2>
+                <p class="menukort"></p>
+                <p class="pris"></p>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        <div id="footer_info">
+            <div class="adresse">
+                <p>Adresse:</p>
+                <p>Grønnegade 97</p>
+                <p>1234 København K</p>
+            </div>
+            <div class="tider">
+                <p>Åbningstider:</p>
+                <p>Mandag-fredag 10:30-22:00</p>
+                <p>Lørdag 12:00-23:00</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let ret = urlParams.get("ret");
+        document.addEventListener("DOMContentLoaded", getJson);
+        async function getJson() {
+            let jsonData = await fetch("https://spreadsheets.google.com/feeds/list/17Dd7DvkPaFamNUdUKlrFgnH6POvBJXac7qyiS6zNRw0/od6/public/values?alt=json");
+            console.log("jsonData", jsonData);
+            retter = await jsonData.json();
+            console.log("retter", retter);
+            document.querySelector(".luk").addEventListener("click", () => {
+                history.back()
+            });
+            start();
+        }
+
+        function start() {
+            retter.feed.entry.forEach((retter) => {
+                if (retter.gsx$navn.$t == ret) {
+                    document.querySelector("h2").textContent = retter.gsx$navn.$t;
+                    document.querySelector(".pris").textContent = `${retter.gsx$pris.$t},-`;
+                    document.querySelector(".menukort").textContent = retter.gsx$lang.$t;
+                    document.querySelector("img").src = `large/${retter.gsx$billede.$t}.jpg`;
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>
